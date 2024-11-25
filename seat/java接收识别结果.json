@@ -1,0 +1,31 @@
+{
+    "taskType": "REALTIME",
+    "lessonId": "**************",
+    "samplingOrder":1,
+    "areaNum":10,
+    "status": "continue|finished",
+    "time": "2021-11-10 10:38:05",
+    "cameraId": "bbbbbbbb",
+    "sourceImg": "***.jpg",
+    "faceImg": "***.jpg",
+    "skeletonImg": "***.jpg",
+    "result": {
+        "present": 10,
+        "headUp": 3,
+        "headDown": 5,
+        "sleep": 5,
+        "inter": 0,
+        "center": 5,
+        "front": 4
+    },
+    "behaviorInfo": [
+        {
+            "studentId": "zhangxx-ID",
+            "behavior": "headUp/headDown/playMobile/Note/sleep/..."
+        },
+        {
+            "studentId": "zhangxx-ID",
+            "behavior": "headUp/headDown/playMobile/Note/sleep/..."
+        }
+    ]
+}

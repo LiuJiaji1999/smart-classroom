@@ -1,0 +1,293 @@
+import os
+import numpy as np
+from scipy import optimize
+import json
+import cv2
+from datetime import datetime, timedelta, timezone
+
+
+
+class ssMatch(object):
+    def __init__(self, json_path, skeleton_path ,img_path): 
+         self.json_path = json_path
+         self.skeleton_path = skeleton_path
+         self.img_path = img_path
+
+    # 1 读取座位标注，划分排排的座位信息          
+    def getSeat(self):
+        img = cv2.imread(self.img_path)
+        with open(self.json_path, 'r') as obj:
+            dict = json.load(obj)
+        # print(dict)
+        # print(dict['seatConfig'])
+        # print(len(dict['seatConfig']))
+        # print(dict['seatConfig'][0])
+
+        areas = []
+        users = []
+        # for i in range(len(dict['cameraConfig'])):
+        #     seatConfig = dict['cameraConfig'][i]['seatConfig']
+          
+        for j in range(len(dict['seatConfig'])):
+            area = dict['seatConfig'][j]['seatListArea']
+            areas.append(area)
+            # print(areas)
+            userId = dict['seatConfig'][j]['userIdList']
+            users.append(userId)
+        seat = []
+        for k in range(len(areas)):
+            point = [[areas[k][0]['x'],areas[k][0]['y']],[areas[k][1]['x'],areas[k][1]['y']],[areas[k][2]['x'],areas[k][2]['y']],[areas[k][3]['x'],areas[k][3]['y']]]
+            seat.append(point)
+        pts = np.array(seat)
+        cv2.polylines(img, pts, True, (0, 0, 255), 2)
+        cv2.imwrite("dangxiao_test/1_paiSeat.png", img)
+        
+        return seat,users
+     
+    # 2 读取检测到的骨架信息
+    def getSkeleton(self):
+        skeleton_result = np.load(self.skeleton_path)  #由骨架结果计算骨架中心点
+        return skeleton_result
+
+    
+    # 3 在排排座位上，切分各个座位,返回每排的所有座位信息
+    def aloneSeat(self,seat): 
+        line1 = [seat[0], seat[1]]
+        dis1_x = line1[1][0] - line1[0][0]
+        dis1_y = line1[1][1] - line1[0][1]
+        seat_dis1_x = dis1_x/4
+        seat_dis1_y = dis1_y/4
+        relt1 = [seat[0]]  # [[160, 719]]
+        x,y = line1[0][0],line1[0][1]
+        for i in range(4):
+            x += seat_dis1_x
+            y += seat_dis1_y
+            x = int(x)
+            y = int(y)
+            new_seat = [x,y]
+            relt1.append(new_seat)
+        line2 = [seat[3], seat[2]]
+        dis2_x = line2[1][0] - line2[0][0]
+        dis2_y = line2[1][1] - line2[0][1]
+        seat_dis2_x = dis2_x/4
+        seat_dis2_y = dis2_y/4
+        relt2 = [seat[3]]
+        x,y = line2[0][0],line2[0][1]
+        for i in range(4):
+            x += seat_dis2_x
+            y += seat_dis2_y
+            x = int(x)
+            y = int(y)
+            line = [x,y]
+            relt2.append(line)
+        
+        ss = [] #每一排所有座位
+        ss1 = [relt1[0],relt1[1],relt2[1],relt2[0]]
+        ss2 = [relt1[1],relt1[2],relt2[2],relt2[1]]
+        ss3 = [relt1[2],relt1[3],relt2[3],relt2[2]]
+        ss4 = [relt1[3],relt1[4],relt2[4],relt2[3]]
+        ss.append(ss1)
+        ss.append(ss2)
+        ss.append(ss3)
+        ss.append(ss4) 
+
+        return ss
+
+ # 4  映射未检测到的骨骼信息
+    def yinshe_skeleton(self,skeleton_result):
+        img = cv2.imread('dangxiao_test/2_aloneSeat.png')
+        relation = self.find_neighbor_skeleton(skeleton_result)
+        failed = []
+        for relate in relation:
+            target_id, neighb1, neighb2 = relate
+            n1_x0, n1_y0 = skeleton_result[neighb1][0][:2] # 第一个邻近人的骨骼点的x0，x1,x8
+            n1_x1, n1_y1 = skeleton_result[neighb1][1][:2]
+            n1_x8, n1_y8 = skeleton_result[neighb1][8][:2]
+            n1_xc, n1_yc = (n1_x1+n1_x8)/2, (n1_y1+n1_y8)/2
+
+            n2_x0, n2_y0 = skeleton_result[neighb2][0][:2]
+            n2_x1, n2_y1 = skeleton_result[neighb2][1][:2]
+            n2_x8, n2_y8 = skeleton_result[neighb2][8][:2]
+            n2_xc, n2_yc = (n2_x1+n2_x8)/2, (n2_y1+n2_y8)/2
+
+            vector1 = [n1_xc-n1_x0, n1_yc-n1_y0] #第一个邻近人的 中心点---鼻子的距离
+            vector2 = [n2_xc-n2_x0, n2_yc-n2_y0]
+            vectorc = [(vector1[0]+vector2[0])/2, (vector1[1]+vector2[1])/2]
+            
+            x0, y0 = skeleton_result[target_id][0][:2]
+            xc, yc = x0+vectorc[0], y0+vectorc[1]
+            failed.append([target_id,xc,yc])
+            
+            cv2.circle(img, tuple([int(xc),int(yc)]),2,(0,255,0), 4)
+        cv2.imwrite('dangxiao_test/3_failedSkeleton.png', img)
+        return failed
+
+    # 5 在映射好的骨骼点上，补全其他本身找到的点，进而得到所有的骨骼点图
+    def findSite(self,skeleton_result,seat_result):
+        failed = self.yinshe_skeleton(skeleton_result) #得到映射后的xc.yc坐标，进而补充所有的xc,yc，进行人座匹配
+        match = []
+        img = cv2.imread('dangxiao_test/3_failedSkeleton.png')
+        for j in range(len(seat_result)): #每排4个座位
+            for i in range(skeleton_result.shape[0]):  #（44，25，3）44个人，25个关键点，3维坐标信息x,y,confidence
+                x1, y1 = skeleton_result[i][1][:2]  #脖子点
+                x8, y8 = skeleton_result[i][8][:2]  #盆骨点 
+                if x1==0 or x8==0:  #为0是因为有些人的骨架信息没检测到 
+                    continue
+                xc, yc = (x1+x8)*0.5, (y1+y8)*0.5
+
+                x0, y0 = skeleton_result[31][0][:2]  
+                cv2.circle(img, tuple([int(x0),int(y0)]),2,(0,0,0), 4) 
+
+                x0, y0 = skeleton_result[34][17][:2]  
+                cv2.circle(img, tuple([int(x0),int(y0)]),2,(255,255,0), 4) 
+
+                cv2.circle(img, tuple([int(xc),int(yc)]),2,(0,255,0), 4) 
+                if self.isInterArea([xc,yc], seat_result[j]):  #判断点是否在多边形区域内！
+                    # match.append((j,i,seat_result[j][4]))  #直接输出第 i 个骨架在第 j 座位
+                    match.append([i,seat_result[j][4]])  #直接输出第 i 个骨架在第 j 座位
+            for k in range(len(failed)):
+                if self.isInterArea([failed[k][1],failed[k][2]], seat_result[j]):  
+                    # match.append((j,failed[k][0],seat_result[j][4]))  
+                    match.append([failed[k][0],seat_result[j][4]])   
+        
+        cv2.imwrite('dangxiao_test/4_allMatch.png',img)    
+        return match
+
+    # 找邻近骨骼信息
+    def find_neighbor_skeleton(self,skeleton_result):
+        result = []
+        for i in range(skeleton_result.shape[0]): #44
+            x0, y0 = skeleton_result[i][0][:2] #鼻子
+            x8, y8 = skeleton_result[i][8][:2]  # 盆骨
+            x1, y1 = skeleton_result[i][1][:2]  #脖子
+            xc, yc = (x1+x8)*0.5, (y1+y8)*0.5  #中心点
+            min_distance = float('inf') # 正无穷  最小距离
+            submin_distance = float('inf')
+            neighbor = [i, 5000, 5000] # 找到的第一个人的id target_id, neighb1, neighb2 
+            if x0*x1*x8 != 0:
+                continue
+            for j in range(skeleton_result.shape[0]): #44
+                if i == j: #表示是同一个人
+                    continue
+                temp_x0, temp_y0 = skeleton_result[j][0][:2]
+                temp_x1, temp_y1 = skeleton_result[j][1][:2]
+                temp_x8, temp_y8 = skeleton_result[j][8][:2]
+                if temp_x0*temp_x1*temp_x8 == 0:
+                    continue
+                current_distance = (x0-temp_x0)**2+(y0-temp_y0)**2 
+                if current_distance < min_distance:
+                    min_distance = current_distance
+                    neighbor[1] = j #
+                elif current_distance < submin_distance:
+                    submin_distance = current_distance
+                    neighbor[2] = j
+            result.append(neighbor)
+        return result
+
+    # 判断点是否在多边形内
+    def isInterArea(self,testPoint,AreaPoint):#testPoint为待测点[x,y]
+        LBPoint = AreaPoint[0]#AreaPoint为按顺时针顺序的4个点[[x1,y1],[x2,y2],[x3,y3],[x4,y4]]
+        LTPoint = AreaPoint[1]
+        RTPoint = AreaPoint[2]
+        RBPoint = AreaPoint[3]
+        a = (LTPoint[0]-LBPoint[0])*(testPoint[1]-LBPoint[1])-(LTPoint[1]-LBPoint[1])*(testPoint[0]-LBPoint[0])
+        b = (RTPoint[0]-LTPoint[0])*(testPoint[1]-LTPoint[1])-(RTPoint[1]-LTPoint[1])*(testPoint[0]-LTPoint[0])
+        c = (RBPoint[0]-RTPoint[0])*(testPoint[1]-RTPoint[1])-(RBPoint[1]-RTPoint[1])*(testPoint[0]-RTPoint[0])
+        d = (LBPoint[0]-RBPoint[0])*(testPoint[1]-RBPoint[1])-(LBPoint[1]-RBPoint[1])*(testPoint[0]-RBPoint[0])
+        if (a>0 and b>0 and c>0 and d>0) or (a<0 and b<0 and c<0 and d<0):
+            return True
+        else:
+            return False
+    
+
+    # 6 进行人座匹配，输出 [(骨骼id,列)，行] 
+    def match(self):
+        allbox,_ = self.getSeat()
+        tt = []
+        img = cv2.imread('dangxiao_test/1_paiSeat.png')
+        for i in range(len(allbox)): #6
+            _,users = self.getSeat()
+            sseat = self.aloneSeat(allbox[i])
+            for k in range(len(sseat)):
+                sseat[k].insert(4,users[i][k])
+            tt.append(sseat)
+
+            cv2.line(img, tuple(sseat[0][1]), tuple(sseat[0][2]),(255,0,0),3)
+            cv2.line(img, tuple(sseat[1][1]), tuple(sseat[1][2]),(255,0,0),3)
+            cv2.line(img, tuple(sseat[2][1]), tuple(sseat[2][2]),(255,0,0),3)
+            cv2.imwrite("dangxiao_test/2_aloneSeat.png", img)
+        
+        h = []  #存放第几排
+        m = []  #存放每排的 人座匹配（骨骼id，第几个座位）
+        for p in range(len(tt)): # p是第几排
+            skeleton_result = self.getSkeleton() #由骨架结果计算骨架中心点
+            match = self.findSite(skeleton_result,tt[p]) #第几个座位
+            h.append(p)
+            m.append(match)
+        # # print(m)
+        # # print(m[0])
+        # # print(m[0][0])
+        # print(m[0][0][0]) #key
+        # print(m[0][0][1]) #value
+        # print(len(m))
+        all = []
+        dict = {}
+        for i in range(len(m)):
+            # print(m[i])
+            # print(len(m[i]))
+            for j in range(len(m[i])):
+                # print(m[i][j])
+                all.append(m[i][j])
+        # print(all)
+        
+        for k in all:
+            dict[k[0]] = k[1]
+        # print(dict)
+        with open('matchResult.json', 'w') as f:
+            json_str = json.dumps(dict,indent=0)
+            f.write(json_str)
+            f.write('\n')
+
+
+        # rr = dict(zip(h,m))
+        
+        # print(rr)
+        # tf = open("myDictionary.json", "w")
+
+        # json.dump(rr,tf,ensure_ascii=False,indent=3,allow_nan=True)
+        # tf.close()
+
+        file = open('matchResult.json','r')
+        json_data = json.load(file)
+        return json_data
+       
+
+ 
+test = ssMatch('javaSeatV2_seat.json','npy/'+str(9000)+'.npy','qianpai/'+str(9000)+'.jpg')
+json_data = test.match()
+print(json_data)     
+        
+        
+
+# idx = 0
+# image_list = os.listdir('./qianpai/')
+# image_list.sort(key=lambda x:int(x[:-4]))
+# npy_list = os.listdir('./npy/')
+# npy_list.sort(key=lambda x:int(x[:-4]))
+# print(len(image_list))
+
+# for image in image_list:
+#     idx += 1
+#     # print('{}) image : {}'.format(idx,image))
+# for skeleton in npy_list:  
+#     idx += 1
+#     # print('{}) npy : {}'.format(idx,skeleton))
+#     np.load()
+# test = ssMatch('javaSeatV2.json',skeleton,image)
+# test.match()
+
+# # for i in range(len(image_list)):
+# #     # print('./qianpai/' + str(i+1) + '.jpg')
+# #     
+
+# test = ssMatch('javaSeatV2_seat.json','npy/'+str(1)+'.npy','qianpai/'+str(1)+'.jpg')

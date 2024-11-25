@@ -1,0 +1,191 @@
+{
+    "taskType": "REALTIME",
+    "lessonID": "dsadasdasfdgfdgfd",
+    "samplingNum": 9,
+    "cameraNum": 10,
+    "samplingPeriod": 300,
+    "duration": 2700,
+    "areaCountFlag": "false",
+    "seatConfigFlag": "true",
+    "faceRecognitionFlag": "false",
+    "cameraConfig": [
+        {
+            "cameraId": "dsadsadhjfdhjkfjkkdhasdkla",
+            "rtsp": "rtsp://admin:alpha123@192.168.20.202//Streaming/Channels/2",
+            "areaConfig": {
+                "validArea": [],
+                "centerArea": [],
+                "frontArea": []
+            },
+            "seatConfig": [
+                {
+                    "seatListArea": [
+                        {
+                            "x": 1783,
+                            "y": 1201
+                        },
+                        {
+                            "x": 2382,
+                            "y": 848
+                        },
+                        {
+                            "x": 2124,
+                            "y": 667
+                        },
+                        {
+                            "x": 1450,
+                            "y": 902
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["a","b","c","d"]
+                },
+                {
+                    "seatListArea": [
+                        {
+                            "x": 1451,
+                            "y": 904
+                        },
+                        {
+                            "x": 2134,
+                            "y": 667
+                        },
+                        {
+                            "x": 1879,
+                            "y": 521
+                        },
+                        {
+                            "x": 1186,
+                            "y": 672
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["e","f","g","h"]
+                },
+                {
+                    "seatListArea": [
+                        {
+                            "x": 1186,
+                            "y": 667
+                        },
+                        {
+                            "x": 1869,
+                            "y": 507
+                        },
+                        {
+                            "x": 1694,
+                            "y": 422
+                        },
+                        {
+                            "x": 1039,
+                            "y": 548
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["i","j","k","l"]
+                },
+                {
+                    "seatListArea": [
+                        {
+                            "x": 1036,
+                            "y": 538
+                        },
+                        {
+                            "x": 1688,
+                            "y": 416
+                        },
+                        {
+                            "x": 1488,
+                            "y": 313
+                        },
+                        {
+                            "x": 905,
+                            "y": 405
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["m","n","o","p"]
+                },
+                {
+                    "seatListArea": [
+                        {
+                            "x": 903,
+                            "y": 404
+                        },
+                        {
+                            "x": 1475,
+                            "y": 313
+                        },
+                        {
+                            "x": 1332,
+                            "y": 238
+                        },
+                        {
+                            "x": 818,
+                            "y": 336
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["q","r","s","t"]
+                },
+                {
+                    "seatListArea": [
+                        {
+                            "x": 751,
+                            "y": 285
+                        },
+                        {
+                            "x": 814,
+                            "y": 333
+                        },
+                        {
+                            "x": 1332,
+                            "y": 236
+                        },
+                        {
+                            "x": 1224,
+                            "y": 193
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["u","v","w","x"]
+                }
+                 
+            ]      
+        }      
+    ],
+    "faceConfig": [
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        },
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        },
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        },
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,180 @@
+{
+    "taskType": "REALTIME",
+    "lessonID": "dsadasdasfdgfdgfd",
+    "samplingNum": 9,
+    "cameraNum": 10,
+    "samplingPeriod": 300,
+    "duration": 2700,
+    "areaCountFlag": "false",
+    "seatConfigFlag": "true",
+    "faceRecognitionFlag": "false",
+    "cameraConfig": [
+        {
+            "cameraId": "dsadsadhjfdhjkfjkkdhasdkla",
+            "rtsp": "rtsp://admin:alpha123@192.168.20.202//Streaming/Channels/2",
+            "areaConfig": {
+                "validArea": [],
+                "centerArea": [],
+                "frontArea": []
+            },
+            "seatConfig": [
+                {
+                    "area": [
+                        {
+                            "x": 274,
+                            "y": 615
+                        },
+                        {
+                            "x": 1504,
+                            "y": 704
+                        },
+                        {
+                            "x": 1600,
+                            "y": 600
+                        },
+                        {
+                            "x": 473,
+                            "y": 538
+                        }
+                    ],
+                    "seatNum":4, 
+                    "userIdList":["a","b","c","d"]
+                },  
+                {
+                    "area": [
+                        {
+                            "x": 485,
+                            "y": 539
+                        },
+                        {
+                            "x": 1598,
+                            "y": 601
+                        },
+                        {
+                            "x": 1664,
+                            "y": 522
+                        },
+                        {
+                            "x": 660,
+                            "y": 471
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["cccc","dddd","null","null"]
+                },
+                {
+                    "area": [
+                        {
+                            "x": 667,
+                            "y": 469
+                        },
+                        {
+                            "x": 1664,
+                            "y": 517
+                        },
+                        {
+                            "x": 1704,
+                            "y": 455
+                        },
+                        {
+                            "x": 813,
+                            "y": 409
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["cccc","dddd","null","null"]
+                }
+            ]
+        },
+        {
+            "cameraId": "dsadsadhjfdhjkfjkkdhasdkla",
+            "rtsp": "rtsp://admin:alpha123@192.168.20.202//Streaming/Channels/2",
+            "areaConfig": {
+                "validArea": [],
+                "centerArea": [],
+                "frontArea": []
+            },
+            "seatConfig": [
+                {
+                    "area": [
+                        {
+                            "x": 810,
+                            "y": 406
+                        },
+                        {
+                            "x": 1706,
+                            "y": 455
+                        },
+                        {
+                            "x": 1760,
+                            "y": 393
+                        },
+                        {
+                            "x": 904,
+                            "y": 362
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["aaaa","bbbb","null","null"]
+                },
+                {
+                    "area": [
+                        {
+                            "x": 911,
+                            "y": 357
+                        },
+                        {
+                            "x": 1762,
+                            "y": 389
+                        },
+                        {
+                            "x": 1803,
+                            "y": 342
+                        },
+                        {
+                            "x": 990,
+                            "y": 312
+                        }
+                    ],
+                    "seatNum":4,
+                    "userIdList":["cccc","dddd","null","null"]
+                }
+            ]
+            
+        }
+    ],
+    "faceConfig": [
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        },
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        },
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        },
+        {
+            "userId": "jhfksdnvkndkjfhdkjhgksgfhkjs",
+            "faceList": [
+                "http://1952.15.15/dasdf.jpg",
+                "http://1952.15.15/dasdfda.jpg",
+                "http://1952.15.15/dasdfdasd.jpg"
+            ]
+        }
+    ]
+}
